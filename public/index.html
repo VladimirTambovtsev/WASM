@@ -7,10 +7,19 @@
 	<h1>WebAssembly Demo</h1>
 </body>
 <script>
+
+	// Read string out of wasm memory
+	const readMemStr = (offset, length) => {
+		const strBuffer = new Uint8Array(wasm.instance.exports.memory.buffer, offset, length)
+		const str = new TextDecoder().decode(strBuffer)
+		console.log(str)
+	}
+
 	const imports = {
-		// Decalre `consoleLog` C func to `console.log`'
+		// Decalre custom `strLog`, `numLog` C func to `console.log` 
 		env: {
-			consoleLog: console.log
+			numLog: console.log,
+			strLog: readMemStr
 		}
 	}
 
@@ -23,10 +32,16 @@
 		window.wasm = wasm
 
 		// Check exported functions
-		console.log(WebAssembly.Module.exports(wasm.module))
+		console.log('Exported functions: ', WebAssembly.Module.exports(wasm.module))
+
+		// Check memory
+		console.log('Memory: ', wasm.instance.exports.memory)
 
 		// Get getDoubleNumber func
 		wasm.instance.exports.getDoubleNumber(33)
+
+		// Get getMessage func
+		wasm.instance.exports.getMessage()
 
 	})
 </script>
